@@ -5,12 +5,13 @@ import "golang.org/x/term"
 import "bytes"
 
 const (
-	NONE = iota
-	UP = iota
-	DOWN = iota
-	LEFT = iota
-	RIGHT = iota
-	Q = iota
+	KEY_NONE = iota
+	KEY_ROTATE = iota
+	KEY_ACCELERATE = iota
+	KEY_LEFT = iota
+	KEY_RIGHT = iota
+	KEY_INSTANT_DOWN = iota
+	KEY_QUIT = iota
 )
 
 type Input interface {
@@ -50,26 +51,30 @@ func (self *TerminalInput) getInput() int {
 	select {
 		case key := <-self.input:
 			if bytes.Equal(key, inputConfig.leftKey) {
-				return LEFT
+				return KEY_LEFT
 			}
 
 			if bytes.Equal(key, inputConfig.rightKey) {
-				return RIGHT
+				return KEY_RIGHT
 			}
 
 			if bytes.Equal(key, inputConfig.rotateKey) {
-				return UP
+				return KEY_ROTATE
 			}
 
 			if bytes.Equal(key, inputConfig.accelerateKey) {
-				return DOWN
+				return KEY_ACCELERATE
+			}
+
+			if bytes.Equal(key, inputConfig.instantDownKey) {
+				return KEY_INSTANT_DOWN
 			}
 
 			if bytes.Equal(key, inputConfig.quitKey) {
-				return Q
+				return KEY_QUIT
 			}
 		default:
 	}
 
-	return NONE
+	return KEY_NONE
 }

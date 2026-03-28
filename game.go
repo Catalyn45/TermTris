@@ -1,14 +1,12 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 type Game struct {
 	ui    GridUi
 	input Input
-
-	lines   int
-	columns int
-	speed   int
 
 	currentShape  *Shape
 	grid          [][]int
@@ -30,10 +28,7 @@ func newGame() *Game {
 
 	game := &Game{
 		input:   newTerminalInput(),
-		lines:   config.gameConfig.lines,
-		columns: config.gameConfig.columns,
 		grid:    grid,
-		speed:   config.gameConfig.speed,
 	}
 
 	game.ui = newTerminalGridUi(game)
@@ -48,8 +43,10 @@ func (self *Game) start() {
 	self.startPlayTime = time.Now()
 
 	for {
+		now := time.Now().UnixMilli()
+
 		key := self.input.getInput()
-		if key == Q {
+		if key == KEY_QUIT {
 			return
 		}
 
@@ -59,6 +56,13 @@ func (self *Game) start() {
 		}
 
 		self.ui.Render()
+
+		elapsed := time.Now().UnixMilli() - now
+		toWait := int64(1000 / config.gameConfig.tps) - elapsed
+
+		if toWait > 0 {
+			time.Sleep(time.Duration(toWait) * time.Millisecond)
+		}
 	}
 }
 
@@ -111,7 +115,7 @@ func (self *Game) canMove(shape [][]int, x int, y int) bool {
 				return false
 			}
 
-			if nextI >= self.lines {
+			if nextI >= config.gameConfig.lines {
 				return false
 			}
 
@@ -119,7 +123,7 @@ func (self *Game) canMove(shape [][]int, x int, y int) bool {
 				return false
 			}
 
-			if nextJ >= self.columns {
+			if nextJ >= config.gameConfig.columns {
 				return false
 			}
 

@@ -27,7 +27,7 @@ func (self *InitialState) Update(key int) State {
 	randomShapeType := rand.Intn(SHAPE_COUNT-1) + 1
 
 	shape := newShape(randomShapeType)
-	shape.SetPosition(0, self.game.columns / 2)
+	shape.SetPosition(0, config.gameConfig.columns / 2)
 	self.game.currentShape = shape
 
 	x, y := self.game.currentShape.GetPosition()
@@ -35,6 +35,7 @@ func (self *InitialState) Update(key int) State {
 		return nil
 	}
 
+	self.game.UpdateCurrentShape()
 	return &PlacingState{
 		game: self.game,
 	}
@@ -46,35 +47,60 @@ type PlacingState struct {
 }
 
 func (self *PlacingState) Update(key int) State {
-	initialX, initialY := self.game.currentShape.GetPosition()
 	now := time.Now().UnixMilli()
+	if self.lastMoveTime == 0 {
+		self.lastMoveTime = now
+	}
+
+	initialX, initialY := self.game.currentShape.GetPosition()
 
 	newX := initialX
 	newY := initialY
 
-	// If time passed, try move the piece down
-	if self.lastMoveTime == 0 ||
-		now - self.lastMoveTime >= int64(config.statesConfig.timeForBlockMovingMiliseconds / self.game.speed ) {
-		newX += 1
-		self.lastMoveTime = now
-	}
-
 	speed := config.gameConfig.speed
 
-	if key == LEFT {
+	newShape := self.game.currentShape.GetShape()
+
+	keyPressed := true
+	if key == KEY_LEFT {
 		newY -= 1
-	} else if key == RIGHT {
+	} else if key == KEY_RIGHT {
 		newY += 1
-	} else if key == DOWN {
-		speed *= config.statesConfig.downAcceleratorMuliplier
-	} else if key == UP {
-		rotatedShape := self.game.currentShape.Rotate()
-		if self.game.canMove(rotatedShape, initialX, initialY) {
-			self.game.currentShape.shape = rotatedShape
+	} else if key == KEY_ACCELERATE {
+		speed = speed * config.statesConfig.downAcceleratorMultiplier
+	} else if key == KEY_INSTANT_DOWN {
+		for i := 0; newX + i < len(self.game.grid); i++ {
+			if !self.game.canMove(newShape, newX + i, newY) {
+				i--
+
+				self.game.currentShape.SetPosition(newX + i, newY)
+				self.game.UpdateCurrentShape()
+
+				initialX, initialY = self.game.currentShape.GetPosition()
+				newX = initialX + 1
+				newY = initialY
+
+				break
+			}
 		}
+	} else if key == KEY_ROTATE {
+		newShape = self.game.currentShape.Rotate()
+	} else {
+		keyPressed = false
 	}
 
-	self.game.speed = speed
+	// If time passed, try move the piece down
+	if  now - self.lastMoveTime >= int64(config.statesConfig.timeForMovingOneBlockMilli / speed) {
+		newX += 1
+		self.lastMoveTime = now
+	} else if !keyPressed {
+		// nothing happened so no reason to continue processing
+		return self
+	}
+
+	if self.game.canMove(newShape, initialX, initialY) {
+		self.game.currentShape.shape = newShape
+	}
 
 	shape := self.game.currentShape.GetShape()
 
@@ -91,7 +117,6 @@ func (self *PlacingState) Update(key int) State {
 		return self
 	}
 
-	self.game.speed = config.gameConfig.speed;
 	self.game.PlaceCurrentShape()
 	return &DestroyingState{
 		game: self.game,
@@ -125,7 +150,7 @@ func (self *DestroyingState) Update(key int) State {
 	}
 
 	if len(destroyedLines) > 0 {
-		self.game.score += len(destroyedLines) * 100
+		self.game.score += config.gameConfig.scores[len(destroyedLines)]
 
 		return &FallingState{
 			game: self.game,
@@ -150,7 +175,7 @@ func (self *FallingState) Update(key int) State {
 		self.lastFailingTime = now
 	}
 
-	if now - self.lastFailingTime < int64(config.statesConfig.timeForBlockMovingMiliseconds / self.game.speed) {
+	if now - self.lastFailingTime < int64(config.statesConfig.timeForMovingOneBlockMilli / config.gameConfig.speed) {
 		return self;
 	}
 
@@ -158,12 +183,12 @@ func (self *FallingState) Update(key int) State {
 	self.destroyedLines = self.destroyedLines[1:]
 
 	for i := firstDestroyedLine; i > 0; i-- {
-		for j := 0; j < self.game.columns; j++ {
+		for j := 0; j < config.gameConfig.columns; j++ {
 			self.game.grid[i][j] = self.game.grid[i - 1][j]
 		}
 	}
 
-	for i := 0; i < self.game.columns; i++ {
+	for i := 0; i < config.gameConfig.columns; i++ {
 		self.game.grid[0][i] = 0
 	}
 

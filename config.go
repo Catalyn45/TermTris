@@ -2,8 +2,10 @@ package main
 
 type GameConfig struct {
 	speed int
+	tps int
 	lines int
 	columns int
+	scores [4]int
 }
 
 type UiConfig struct {
@@ -19,12 +21,13 @@ type InputConfig struct {
 	rightKey []byte
 	rotateKey []byte
 	accelerateKey []byte
+	instantDownKey []byte
 	quitKey []byte
 }
 
 type StatesConfig struct {
-	timeForBlockMovingMiliseconds int
-	downAcceleratorMuliplier int
+	timeForMovingOneBlockMilli int
+	downAcceleratorMultiplier int
 }
 
 type Config struct {
@@ -37,8 +40,10 @@ type Config struct {
 var config = Config {
 	gameConfig: GameConfig {
 		speed: 1,
+		tps: 120,
 		lines: 25,
 		columns: 10,
+		scores: [4]int {100, 300, 500, 800},
 	},
 	uiConfig: UiConfig {
 		fps: 60,
@@ -52,10 +57,11 @@ var config = Config {
 		rightKey: []byte {27, 91, 67}, // right arrow
 		rotateKey: []byte {27, 91, 65}, // up arrow
 		accelerateKey: []byte {27, 91, 66}, // down arrow
+		instantDownKey: []byte {' '},
 		quitKey: []byte {'q'},
 	},
 	statesConfig: StatesConfig {
-		timeForBlockMovingMiliseconds: 1000,
-		downAcceleratorMuliplier: 32,
+		timeForMovingOneBlockMilli: 1000,
+		downAcceleratorMultiplier: 32,
 	},
 }

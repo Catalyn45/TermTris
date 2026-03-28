@@ -16,6 +16,15 @@ type TerminalGridUi struct {
 	lastRenderTime int64
 }
 
+var helpMessage = []string {
+	"Left Arrow  -> Move piece left",
+	"Right Arrow -> Move piece right",
+	"Down Arrow  -> Piece fall faster",
+	"Up Arrow    -> Rotate piece",
+	"Space       -> Instant place",
+	"q           -> Quit game",
+}
+
 func newTerminalGridUi( game *Game) *TerminalGridUi {
 	return &TerminalGridUi{
 		game: game,
@@ -73,7 +82,13 @@ func (self *TerminalGridUi) Draw() {
 				fmt.Print(config.uiConfig.filledBlock)
 			}
 		}
-		fmt.Println(config.uiConfig.marginDelimiter)
+		fmt.Print(config.uiConfig.marginDelimiter)
+
+		if i < len(helpMessage) {
+			fmt.Print(config.uiConfig.emptyBlock, helpMessage[i])
+		}
+
+		fmt.Println("")
 	}
 
 	fmt.Print(config.uiConfig.marginDelimiter)
