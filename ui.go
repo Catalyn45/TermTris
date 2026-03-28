@@ -8,12 +8,15 @@ import (
 type GridUi interface {
 	Initialize()
 	Render()
+	DebugMessage(message string)
 }
 
 type TerminalGridUi struct {
 	game *Game
 
 	lastRenderTime int64
+
+	debugMessage string
 }
 
 var helpMessage = []string {
@@ -51,6 +54,10 @@ func (self *TerminalGridUi) Render() {
 	self.lastRenderTime = nowTime
 }
 
+func (self *TerminalGridUi) DebugMessage(message string) {
+	self.debugMessage = message
+}
+
 func (self *TerminalGridUi) Draw() {
 	// Clear screen
     fmt.Print("\033[H")  // move cursor to top-left
@@ -86,6 +93,10 @@ func (self *TerminalGridUi) Draw() {
 
 		if i < len(helpMessage) {
 			fmt.Print(config.uiConfig.emptyBlock, helpMessage[i])
+		}
+
+		if self.debugMessage != "" && i == lines - 1 {
+			fmt.Print(config.uiConfig.emptyBlock, self.debugMessage)
 		}
 
 		fmt.Println("")
