@@ -76,6 +76,20 @@ func (self *Shape) GetShape() [][]int {
 	return self.shape
 }
 
-func (self *Shape) rotate() {
+func (self *Shape) Rotate() [][]int {
+	lines := len(self.shape)
+	columns := len(self.shape[0])
 
+	newShape := make([][]int, columns)
+	for i:= range newShape {
+		newShape[i] = make([]int, lines)
+	}
+
+	for i, row := range self.shape {
+		for j, value := range row {
+			newShape[columns - j - 1][i] = value
+		}
+	}
+
+	return newShape
 }

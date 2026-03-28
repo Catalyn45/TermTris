@@ -6,8 +6,7 @@ import (
 )
 
 func init() {
-	// rand.Seed(time.Now().Unix())
-	rand.Seed(1)
+	rand.Seed(time.Now().Unix())
 }
 
 type State interface {
@@ -32,7 +31,7 @@ func (self *InitialState) Update(key int) State {
 	self.game.currentShape = shape
 
 	x, y := self.game.currentShape.GetPosition()
-	if !self.game.canMove(x, y) {
+	if !self.game.canMove(self.game.currentShape.GetShape(), x, y) {
 		return nil
 	}
 
@@ -54,25 +53,34 @@ func (self *PlacingState) Update(key int) State {
 	newY := initialY
 
 	// If time passed, try move the piece down
-	if self.lastMoveTime == 0 || now - self.lastMoveTime >= int64(1000 / self.game.speed ) {
+	if self.lastMoveTime == 0 ||
+		now - self.lastMoveTime >= int64(config.statesConfig.timeForBlockMovingMiliseconds / self.game.speed ) {
 		newX += 1
 		self.lastMoveTime = now
 	}
 
-	speed := 1
+	speed := config.gameConfig.speed
+
 	if key == LEFT {
 		newY -= 1
 	} else if key == RIGHT {
 		newY += 1
 	} else if key == DOWN {
-		speed = 16
+		speed *= config.statesConfig.downAcceleratorMuliplier
+	} else if key == UP {
+		rotatedShape := self.game.currentShape.Rotate()
+		if self.game.canMove(rotatedShape, initialX, initialY) {
+			self.game.currentShape.shape = rotatedShape
+		}
 	}
 
 	self.game.speed = speed
 
-	canMove := self.game.canMove(newX, newY)
+	shape := self.game.currentShape.GetShape()
+
+	canMove := self.game.canMove(shape, newX, newY)
 	if !canMove {
-		canMove = self.game.canMove(newX, initialY)
+		canMove = self.game.canMove(shape, newX, initialY)
 		newY = initialY
 	}
 
@@ -83,6 +91,7 @@ func (self *PlacingState) Update(key int) State {
 		return self
 	}
 
+	self.game.speed = config.gameConfig.speed;
 	self.game.PlaceCurrentShape()
 	return &DestroyingState{
 		game: self.game,
@@ -116,6 +125,8 @@ func (self *DestroyingState) Update(key int) State {
 	}
 
 	if len(destroyedLines) > 0 {
+		self.game.score += len(destroyedLines) * 100
+
 		return &FallingState{
 			game: self.game,
 			destroyedLines: destroyedLines,
@@ -139,7 +150,7 @@ func (self *FallingState) Update(key int) State {
 		self.lastFailingTime = now
 	}
 
-	if now - self.lastFailingTime < int64(1000 / self.game.speed) {
+	if now - self.lastFailingTime < int64(config.statesConfig.timeForBlockMovingMiliseconds / self.game.speed) {
 		return self;
 	}
 

@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type Game struct {
 	ui    GridUi
 	input Input
@@ -8,20 +10,18 @@ type Game struct {
 	columns int
 	speed   int
 
-	currentShape   *Shape
-	grid           [][]int
-	score          int
-	lastUpdateTime int
-	currentState   State
+	currentShape  *Shape
+	grid          [][]int
+	score         int
+	currentState  State
+	startPlayTime time.Time
 }
 
-func newGame(lines int, columns int) *Game {
-	// create outer slice
-	grid := make([][]int, lines)
+func newGame() *Game {
+	grid := make([][]int, config.gameConfig.lines)
 
-	// create inner slices
 	for i := range grid {
-		grid[i] = make([]int, columns)
+		grid[i] = make([]int, config.gameConfig.columns)
 
 		for j := range grid[i] {
 			grid[i][j] = 0
@@ -30,13 +30,13 @@ func newGame(lines int, columns int) *Game {
 
 	game := &Game{
 		input:   newTerminalInput(),
-		lines:   lines,
-		columns: columns,
+		lines:   config.gameConfig.lines,
+		columns: config.gameConfig.columns,
 		grid:    grid,
-		speed:   1,
+		speed:   config.gameConfig.speed,
 	}
 
-	game.ui = newTerminalGridUi("[]", 60, game)
+	game.ui = newTerminalGridUi(game)
 
 	return game
 }
@@ -45,6 +45,7 @@ func (self *Game) start() {
 	self.input.initialize()
 	self.ui.Initialize()
 	self.currentState = newInitialState(self)
+	self.startPlayTime = time.Now()
 
 	for {
 		key := self.input.getInput()
@@ -96,9 +97,7 @@ func (self *Game) PlaceCurrentShape() {
 	self.currentShape = nil
 }
 
-func (self *Game) canMove(x int, y int) bool {
-	shape := self.currentShape.GetShape()
-
+func (self *Game) canMove(shape [][]int, x int, y int) bool {
 	for i, row := range shape {
 		for j, block := range row {
 			if block == 0 {
@@ -132,4 +131,3 @@ func (self *Game) canMove(x int, y int) bool {
 
 	return true
 }
-

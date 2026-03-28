@@ -10,27 +10,21 @@ type GridUi interface {
 	Render()
 }
 
-const topdownDelimiter = "=="
-const marginDelimiter = "="
-
 type TerminalGridUi struct {
-	cell string
-	fps  int
 	game *Game
 
 	lastRenderTime int64
 }
 
-func newTerminalGridUi(cell string, fps int, game *Game) *TerminalGridUi {
+func newTerminalGridUi( game *Game) *TerminalGridUi {
 	return &TerminalGridUi{
-		cell: cell,
 		game: game,
-		fps:  fps,
 	}
 }
 
 func (self *TerminalGridUi) Initialize() {
 	fmt.Print("\033[?25l") // hide cursor
+    fmt.Print("\033[2J") // clear screen
 }
 
 func (self *TerminalGridUi) Render() {
@@ -38,41 +32,53 @@ func (self *TerminalGridUi) Render() {
 
 	// Check fps
 	delta := nowTime - self.lastRenderTime
-	frameTime := int64(1000 / self.fps)
+	frameTime := int64(1000 / config.uiConfig.fps)
 	if (delta < frameTime) {
 		return
 	}
 
+	self.Draw()
+
+	self.lastRenderTime = nowTime
+}
+
+func (self *TerminalGridUi) Draw() {
 	// Clear screen
-    //fmt.Print("\033[2J") // clear screen
     fmt.Print("\033[H")  // move cursor to top-left
 
 	lines := len(self.game.grid)
 	columns := len(self.game.grid[0])
 
-	fmt.Print(marginDelimiter)
+	elapsed := time.Since(self.game.startPlayTime)
+
+	minutes := int(elapsed.Minutes())
+	seconds := int(elapsed.Seconds()) % 60
+
+	fmt.Printf("Time: %02d:%02d\n", minutes, seconds)
+	fmt.Println("Score: ", self.game.score)
+
+	fmt.Print(config.uiConfig.marginDelimiter)
 	for i := 0; i < columns; i++ {
-		fmt.Print(topdownDelimiter)
+		fmt.Print(config.uiConfig.topdownDelimiter)
 	}
-	fmt.Println(marginDelimiter)
+
+	fmt.Println(config.uiConfig.marginDelimiter)
 
 	for i := 0; i < lines; i++ {
-		fmt.Print(marginDelimiter)
+		fmt.Print(config.uiConfig.marginDelimiter)
 		for j := 0; j < columns; j++ {
 			if self.game.grid[i][j] == 0 {
-				fmt.Print("  ")
+				fmt.Print(config.uiConfig.emptyBlock)
 			} else {
-				fmt.Print(self.cell)
+				fmt.Print(config.uiConfig.filledBlock)
 			}
 		}
-		fmt.Println(marginDelimiter)
+		fmt.Println(config.uiConfig.marginDelimiter)
 	}
 
-	fmt.Print(marginDelimiter)
+	fmt.Print(config.uiConfig.marginDelimiter)
 	for i := 0; i < columns; i++ {
-		fmt.Print(topdownDelimiter)
+		fmt.Print(config.uiConfig.topdownDelimiter)
 	}
-	fmt.Println(marginDelimiter)
-
-	self.lastRenderTime = nowTime
+	fmt.Println(config.uiConfig.marginDelimiter)
 }

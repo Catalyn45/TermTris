@@ -2,6 +2,7 @@ package main
 
 import "os"
 import "golang.org/x/term"
+import "bytes"
 
 const (
 	NONE = iota
@@ -45,25 +46,27 @@ func (self *TerminalInput) initialize() {
 }
 
 func (self *TerminalInput) getInput() int {
+	inputConfig := &config.inputConfig
 	select {
 		case key := <-self.input:
-			if len(key) == 3 && key[0] == 27 && key[1] == 91 {
-				switch key[2] {
-					case 65:
-						return UP
-					case 66:
-						return DOWN
-					case 67:
-						return RIGHT
-					case 68:
-						return LEFT
-				}
+			if bytes.Equal(key, inputConfig.leftKey) {
+				return LEFT
 			}
 
-			if len(key) == 1 {
-				if key[0] == 'q' {
-					return Q
-				}
+			if bytes.Equal(key, inputConfig.rightKey) {
+				return RIGHT
+			}
+
+			if bytes.Equal(key, inputConfig.rotateKey) {
+				return UP
+			}
+
+			if bytes.Equal(key, inputConfig.accelerateKey) {
+				return DOWN
+			}
+
+			if bytes.Equal(key, inputConfig.quitKey) {
+				return Q
 			}
 		default:
 	}
