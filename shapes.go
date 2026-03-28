@@ -1,17 +1,18 @@
 package main
 
 const (
-	SHAPE_I = iota
-	SHAPE_L = iota
-	SHAPE_J = iota
-	SHAPE_O = iota
-	SHAPE_S = iota
-	SHAPE_Z = iota
-	SHAPE_T = iota
+	SHAPE_NONE  = iota
+	SHAPE_I     = iota
+	SHAPE_L     = iota
+	SHAPE_J     = iota
+	SHAPE_O     = iota
+	SHAPE_S     = iota
+	SHAPE_Z     = iota
+	SHAPE_T     = iota
 	SHAPE_COUNT = iota
 )
 
-var initialShapes = [][][]int {
+var initialShapes = [][][]int{
 	SHAPE_I: {
 		{1},
 		{1},
@@ -58,12 +59,17 @@ type Shape struct {
 func newShape(shapeType int) *Shape {
 	return &Shape{
 		shapeType: shapeType,
-		shape: initialShapes[shapeType],
+		shape:     initialShapes[shapeType],
 	}
 }
 
 func (self *Shape) GetPosition() (int, int) {
 	return self.xPosition, self.yPosition
+}
+
+func (self *Shape) SetPosition(x int, y int) {
+	self.xPosition = x
+	self.yPosition = y
 }
 
 func (self *Shape) GetShape() [][]int {
