@@ -8,7 +8,7 @@ type Game struct {
 	ui    GridUi
 	input Input
 
-	currentShape  *Shape
+	currentPiece  *Piece
 	grid          [][]int
 	score         int
 	currentState  State
@@ -58,7 +58,7 @@ func (self *Game) start() {
 		self.ui.Render()
 
 		elapsed := time.Now().UnixMilli() - now
-		toWait := int64(1000 / config.gameConfig.tps) - elapsed
+		toWait := int64(1000 / config.gameConfig.ticksPerSecond) - elapsed
 
 		if toWait > 0 {
 			time.Sleep(time.Duration(toWait) * time.Millisecond)
@@ -66,7 +66,7 @@ func (self *Game) start() {
 	}
 }
 
-func (self *Game) UpdateCurrentShape() {
+func (self *Game) UpdateCurrentPiece() {
 	for i, row := range self.grid {
 		for j, block := range row {
 			if block < 0 {
@@ -75,8 +75,10 @@ func (self *Game) UpdateCurrentShape() {
 		}
 	}
 
-	x, y := self.currentShape.GetPosition()
-	shape := self.currentShape.GetShape()
+	x, y := self.currentPiece.GetPosition()
+	shape := self.currentPiece.GetShape()
+
+	xProjection := self.TryGoingDown(shape, x, y)
 
 	for i, row := range shape {
 		for j, block := range row {
@@ -84,12 +86,24 @@ func (self *Game) UpdateCurrentShape() {
 				continue
 			}
 
-			self.grid[x+i][y+j] = -1 * self.currentShape.shapeType
+			self.grid[xProjection+i][y+j] = PIECE_PROJECTION
+			self.grid[x+i][y+j] = -1 * self.currentPiece.pieceType
 		}
 	}
 }
 
-func (self *Game) PlaceCurrentShape() {
+func (self *Game) TryGoingDown(shape [][]int, x int, y int) int {
+	xProjection := x
+	for i := xProjection; i < len(self.grid); i++ {
+		if !self.canMove(shape, i, y) {
+			return i - 1
+		}
+	}
+
+	return len(self.grid) - 1
+}
+
+func (self *Game) PlaceCurrentPiece() {
 	for i, row := range self.grid {
 		for j, block := range row {
 			if block < 0 {
@@ -98,7 +112,7 @@ func (self *Game) PlaceCurrentShape() {
 		}
 	}
 
-	self.currentShape = nil
+	self.currentPiece = nil
 }
 
 func (self *Game) canMove(shape [][]int, x int, y int) bool {

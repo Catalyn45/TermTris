@@ -85,6 +85,8 @@ func (self *TerminalGridUi) Draw() {
 		for j := 0; j < columns; j++ {
 			if self.game.grid[i][j] == 0 {
 				fmt.Print(config.uiConfig.emptyBlock)
+			} else if self.game.grid[i][j] == PIECE_PROJECTION {
+				fmt.Print(config.uiConfig.projectionBlock)
 			} else {
 				fmt.Print(config.uiConfig.filledBlock)
 			}

@@ -2,7 +2,7 @@ package main
 
 type GameConfig struct {
 	speed int
-	tps int
+	ticksPerSecond int
 	lines int
 	columns int
 	scores [4]int
@@ -14,6 +14,7 @@ type UiConfig struct {
 	topdownDelimiter string
 	filledBlock string
 	emptyBlock string
+	projectionBlock string
 }
 
 type InputConfig struct {
@@ -27,7 +28,6 @@ type InputConfig struct {
 
 type StatesConfig struct {
 	timeForMovingOneBlockMilli int
-	downAcceleratorMultiplier int
 }
 
 type Config struct {
@@ -40,7 +40,7 @@ type Config struct {
 var config = Config {
 	gameConfig: GameConfig {
 		speed: 1,
-		tps: 120,
+		ticksPerSecond: 120,
 		lines: 25,
 		columns: 10,
 		scores: [4]int {100, 300, 500, 800},
@@ -51,6 +51,7 @@ var config = Config {
 		topdownDelimiter: "==",
 		filledBlock: "[]",
 		emptyBlock: "  ",
+		projectionBlock: "{}",
 	},
 	inputConfig: InputConfig {
 		leftKey: []byte {27, 91, 68}, // Left arrow
@@ -62,6 +63,5 @@ var config = Config {
 	},
 	statesConfig: StatesConfig {
 		timeForMovingOneBlockMilli: 1000,
-		downAcceleratorMultiplier: 32,
 	},
 }

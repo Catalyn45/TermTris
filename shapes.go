@@ -1,54 +1,60 @@
 package main
 
 const (
-	SHAPE_NONE  = iota
-	SHAPE_I     = iota
-	SHAPE_L     = iota
-	SHAPE_J     = iota
-	SHAPE_O     = iota
-	SHAPE_S     = iota
-	SHAPE_Z     = iota
-	SHAPE_T     = iota
-	SHAPE_COUNT = iota
+	PIECE_NONE  = iota
+	PIECE_I     = iota
+	PIECE_L     = iota
+	PIECE_J     = iota
+	PIECE_O     = iota
+	PIECE_S     = iota
+	PIECE_Z     = iota
+	PIECE_T     = iota
+	PIECE_COUNT = iota
 )
 
+// special piece for projection
+const PIECE_PROJECTION = -1 * PIECE_COUNT
+
 var initialShapes = [][][]int{
-	SHAPE_I: {
-		{1},
-		{1},
-		{1},
-		{1},
+	PIECE_I: {
+		{0, 1, 0},
+		{0, 1, 0},
+		{0, 1, 0},
+		{0, 1, 0},
 	},
-	SHAPE_L: {
-		{1, 0},
-		{1, 0},
+	PIECE_L: {
+		{0, 1, 0},
+		{0, 1, 0},
+		{0, 1, 1},
+	},
+	PIECE_J: {
+		{0, 1, 0},
+		{0, 1, 0},
+		{1, 1, 0},
+	},
+	PIECE_O: {
+		{1, 1},
 		{1, 1},
 	},
-	SHAPE_J: {
-		{0, 1},
-		{0, 1},
-		{1, 1},
-	},
-	SHAPE_O: {
-		{1, 1},
-		{1, 1},
-	},
-	SHAPE_S: {
+	PIECE_S: {
+		{0, 0, 0},
 		{0, 1, 1},
 		{1, 1, 0},
 	},
-	SHAPE_Z: {
+	PIECE_Z: {
 		{1, 1, 0},
 		{0, 1, 1},
+		{0, 0, 0},
 	},
-	SHAPE_T: {
+	PIECE_T: {
+		{0, 0, 0},
 		{1, 1, 1},
 		{0, 1, 0},
 	},
 }
 
-type Shape struct {
-	shapeType int
+type Piece struct {
+	pieceType int
 
 	xPosition int
 	yPosition int
@@ -56,27 +62,27 @@ type Shape struct {
 	shape [][]int
 }
 
-func newShape(shapeType int) *Shape {
-	return &Shape{
-		shapeType: shapeType,
-		shape:     initialShapes[shapeType],
+func newPiece(pieceType int) *Piece {
+	return &Piece{
+		pieceType: pieceType,
+		shape:     initialShapes[pieceType],
 	}
 }
 
-func (self *Shape) GetPosition() (int, int) {
+func (self *Piece) GetPosition() (int, int) {
 	return self.xPosition, self.yPosition
 }
 
-func (self *Shape) SetPosition(x int, y int) {
+func (self *Piece) SetPosition(x int, y int) {
 	self.xPosition = x
 	self.yPosition = y
 }
 
-func (self *Shape) GetShape() [][]int {
+func (self *Piece) GetShape() [][]int {
 	return self.shape
 }
 
-func (self *Shape) Rotate() [][]int {
+func (self *Piece) Rotate() [][]int {
 	lines := len(self.shape)
 	columns := len(self.shape[0])
 
