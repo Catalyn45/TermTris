@@ -44,7 +44,7 @@ func (self *TerminalGridUi) Render() {
 
 	// Check fps
 	delta := nowTime - self.lastRenderTime
-	frameTime := int64(1000 / config.uiConfig.fps)
+	frameTime := int64(1000 / config.UiConfig.Fps)
 	if (delta < frameTime) {
 		return
 	}
@@ -62,8 +62,8 @@ func (self *TerminalGridUi) Draw() {
 	// Clear screen
     fmt.Print("\033[H")  // move cursor to top-left
 
-	lines := len(self.game.grid)
-	columns := len(self.game.grid[0])
+	lines := config.GameConfig.Lines
+	columns := config.GameConfig.Columns
 
 	elapsed := time.Since(self.game.startPlayTime)
 
@@ -73,40 +73,39 @@ func (self *TerminalGridUi) Draw() {
 	fmt.Printf("Time: %02d:%02d\n", minutes, seconds)
 	fmt.Println("Score: ", self.game.score)
 
-	fmt.Print(config.uiConfig.marginDelimiter)
+	fmt.Print(config.UiConfig.MarginDelimiter)
 	for i := 0; i < columns; i++ {
-		fmt.Print(config.uiConfig.topdownDelimiter)
+		fmt.Print(config.UiConfig.TopdownDelimiter)
 	}
-
-	fmt.Println(config.uiConfig.marginDelimiter)
+	fmt.Println(config.UiConfig.MarginDelimiter)
 
 	for i := 0; i < lines; i++ {
-		fmt.Print(config.uiConfig.marginDelimiter)
+		fmt.Print(config.UiConfig.MarginDelimiter)
 		for j := 0; j < columns; j++ {
 			if self.game.grid[i][j] == 0 {
-				fmt.Print(config.uiConfig.emptyBlock)
+				fmt.Print(config.UiConfig.EmptyBlock)
 			} else if self.game.grid[i][j] == PIECE_PROJECTION {
-				fmt.Print(config.uiConfig.projectionBlock)
+				fmt.Print(config.UiConfig.ProjectionBlock)
 			} else {
-				fmt.Print(config.uiConfig.filledBlock)
+				fmt.Print(config.UiConfig.FilledBlock)
 			}
 		}
-		fmt.Print(config.uiConfig.marginDelimiter)
+		fmt.Print(config.UiConfig.MarginDelimiter)
 
 		if i < len(helpMessage) {
-			fmt.Print(config.uiConfig.emptyBlock, helpMessage[i])
+			fmt.Print(config.UiConfig.EmptyBlock, helpMessage[i])
 		}
 
 		if self.debugMessage != "" && i == lines - 1 {
-			fmt.Print(config.uiConfig.emptyBlock, self.debugMessage)
+			fmt.Print(config.UiConfig.EmptyBlock, self.debugMessage)
 		}
 
 		fmt.Println("")
 	}
 
-	fmt.Print(config.uiConfig.marginDelimiter)
+	fmt.Print(config.UiConfig.MarginDelimiter)
 	for i := 0; i < columns; i++ {
-		fmt.Print(config.uiConfig.topdownDelimiter)
+		fmt.Print(config.UiConfig.TopdownDelimiter)
 	}
-	fmt.Println(config.uiConfig.marginDelimiter)
+	fmt.Println(config.UiConfig.MarginDelimiter)
 }

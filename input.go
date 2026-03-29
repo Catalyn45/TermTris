@@ -2,7 +2,6 @@ package main
 
 import "os"
 import "golang.org/x/term"
-import "bytes"
 
 const (
 	KEY_NONE = iota
@@ -46,31 +45,45 @@ func (self *TerminalInput) initialize() {
 	}()
 }
 
+func equalByteInt(b []byte, ints []int) bool {
+    if len(b) != len(ints) {
+        return false
+    }
+
+    for i := range b {
+        if int(b[i]) != ints[i] {
+            return false
+        }
+    }
+
+    return true
+}
+
 func (self *TerminalInput) getInput() int {
-	inputConfig := &config.inputConfig
+	inputConfig := &config.InputConfig
 	select {
 		case key := <-self.input:
-			if bytes.Equal(key, inputConfig.leftKey) {
+			if equalByteInt(key, inputConfig.LeftKey) {
 				return KEY_LEFT
 			}
 
-			if bytes.Equal(key, inputConfig.rightKey) {
+			if equalByteInt(key, inputConfig.RightKey) {
 				return KEY_RIGHT
 			}
 
-			if bytes.Equal(key, inputConfig.rotateKey) {
+			if equalByteInt(key, inputConfig.RotateKey) {
 				return KEY_ROTATE
 			}
 
-			if bytes.Equal(key, inputConfig.accelerateKey) {
+			if equalByteInt(key, inputConfig.AccelerateKey) {
 				return KEY_ACCELERATE
 			}
 
-			if bytes.Equal(key, inputConfig.instantDownKey) {
+			if equalByteInt(key, inputConfig.InstantDownKey) {
 				return KEY_INSTANT_DOWN
 			}
 
-			if bytes.Equal(key, inputConfig.quitKey) {
+			if equalByteInt(key, inputConfig.QuitKey) {
 				return KEY_QUIT
 			}
 		default:

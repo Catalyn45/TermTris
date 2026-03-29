@@ -27,7 +27,7 @@ func (self *InitialState) Update(key int) State {
 	randomShapeType := rand.Intn(PIECE_COUNT-1) + 1
 
 	piece := newPiece(randomShapeType)
-	piece.SetPosition(0, config.gameConfig.columns / 2)
+	piece.SetPosition(0, config.GameConfig.Columns / 2)
 	self.game.currentPiece = piece
 
 	x, y := self.game.currentPiece.GetPosition()
@@ -87,7 +87,7 @@ func (self *PlacingState) Update(key int) State {
 
 	// If time passed, try move the piece down
 	if  accelerate ||
-		now - self.lastMoveTime >= int64(config.statesConfig.timeForMovingOneBlockMilli / config.gameConfig.speed) {
+		now - self.lastMoveTime >= int64(config.StatesConfig.TimeForMovingOneBlockMilli / config.GameConfig.Speed) {
 		newX += 1
 		self.lastMoveTime = now
 	} else if !keyPressed {
@@ -147,7 +147,7 @@ func (self *DestroyingState) Update(key int) State {
 	}
 
 	if len(destroyedLines) > 0 {
-		self.game.score += config.gameConfig.scores[len(destroyedLines) - 1]
+		self.game.score += config.GameConfig.Scores[len(destroyedLines) - 1]
 
 		return &FallingState{
 			game: self.game,
@@ -172,7 +172,7 @@ func (self *FallingState) Update(key int) State {
 		self.lastFailingTime = now
 	}
 
-	if now - self.lastFailingTime < int64(config.statesConfig.timeForMovingOneBlockMilli / config.gameConfig.speed) {
+	if now - self.lastFailingTime < int64(config.StatesConfig.TimeForMovingOneBlockMilli / config.GameConfig.Speed) {
 		return self;
 	}
 
@@ -180,12 +180,12 @@ func (self *FallingState) Update(key int) State {
 	self.destroyedLines = self.destroyedLines[1:]
 
 	for i := firstDestroyedLine; i > 0; i-- {
-		for j := 0; j < config.gameConfig.columns; j++ {
+		for j := 0; j < config.GameConfig.Columns; j++ {
 			self.game.grid[i][j] = self.game.grid[i - 1][j]
 		}
 	}
 
-	for i := 0; i < config.gameConfig.columns; i++ {
+	for i := 0; i < config.GameConfig.Columns; i++ {
 		self.game.grid[0][i] = 0
 	}
 

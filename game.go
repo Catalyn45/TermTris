@@ -16,10 +16,10 @@ type Game struct {
 }
 
 func newGame() *Game {
-	grid := make([][]int, config.gameConfig.lines)
+	grid := make([][]int, config.GameConfig.Lines)
 
 	for i := range grid {
-		grid[i] = make([]int, config.gameConfig.columns)
+		grid[i] = make([]int, config.GameConfig.Columns)
 
 		for j := range grid[i] {
 			grid[i][j] = 0
@@ -58,7 +58,7 @@ func (self *Game) start() {
 		self.ui.Render()
 
 		elapsed := time.Now().UnixMilli() - now
-		toWait := int64(1000 / config.gameConfig.ticksPerSecond) - elapsed
+		toWait := int64(1000 / config.GameConfig.TicksPerSecond) - elapsed
 
 		if toWait > 0 {
 			time.Sleep(time.Duration(toWait) * time.Millisecond)
@@ -129,7 +129,7 @@ func (self *Game) canMove(shape [][]int, x int, y int) bool {
 				return false
 			}
 
-			if nextI >= config.gameConfig.lines {
+			if nextI >= config.GameConfig.Lines {
 				return false
 			}
 
@@ -137,7 +137,7 @@ func (self *Game) canMove(shape [][]int, x int, y int) bool {
 				return false
 			}
 
-			if nextJ >= config.gameConfig.columns {
+			if nextJ >= config.GameConfig.Columns {
 				return false
 			}
 

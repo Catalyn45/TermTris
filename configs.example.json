@@ -1,0 +1,12 @@
+{
+    "gameConfig": {
+        "columns": 30
+    },
+    "uiConfig": {
+        "marginDelimiter": "||",
+        "topdownDelimiter": "__"
+    },
+    "inputConfig": {
+        "quitKey": [97]
+    }
+}

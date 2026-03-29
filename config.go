@@ -1,67 +1,85 @@
 package main
 
+import (
+	"encoding/json"
+	"os"
+)
+
 type GameConfig struct {
-	speed int
-	ticksPerSecond int
-	lines int
-	columns int
-	scores [4]int
+	Speed int
+	TicksPerSecond int
+	Lines int
+	Columns int
+	Scores [4]int
 }
 
 type UiConfig struct {
-	fps int
-	marginDelimiter string
-	topdownDelimiter string
-	filledBlock string
-	emptyBlock string
-	projectionBlock string
+	Fps int
+	MarginDelimiter string
+	TopdownDelimiter string
+	FilledBlock string
+	EmptyBlock string
+	ProjectionBlock string
 }
 
 type InputConfig struct {
-	leftKey []byte
-	rightKey []byte
-	rotateKey []byte
-	accelerateKey []byte
-	instantDownKey []byte
-	quitKey []byte
+	LeftKey []int
+	RightKey []int
+	RotateKey []int
+	AccelerateKey []int
+	InstantDownKey []int
+	QuitKey []int
 }
 
 type StatesConfig struct {
-	timeForMovingOneBlockMilli int
+	TimeForMovingOneBlockMilli int
 }
 
 type Config struct {
-	gameConfig GameConfig
-	uiConfig UiConfig
-	inputConfig InputConfig
-	statesConfig StatesConfig
+	GameConfig GameConfig
+	UiConfig UiConfig
+	InputConfig InputConfig
+	StatesConfig StatesConfig
 }
 
 var config = Config {
-	gameConfig: GameConfig {
-		speed: 1,
-		ticksPerSecond: 120,
-		lines: 25,
-		columns: 10,
-		scores: [4]int {100, 300, 500, 800},
+	GameConfig: GameConfig {
+		Speed: 1,
+		TicksPerSecond: 120,
+		Lines: 25,
+		Columns: 10,
+		Scores: [4]int {100, 300, 500, 800},
 	},
-	uiConfig: UiConfig {
-		fps: 60,
-		marginDelimiter: "=",
-		topdownDelimiter: "==",
-		filledBlock: "[]",
-		emptyBlock: "  ",
-		projectionBlock: "{}",
+	UiConfig: UiConfig {
+		Fps: 60,
+		MarginDelimiter: "=",
+		TopdownDelimiter: "==",
+		FilledBlock: "[]",
+		EmptyBlock: "  ",
+		ProjectionBlock: "{}",
 	},
-	inputConfig: InputConfig {
-		leftKey: []byte {27, 91, 68}, // Left arrow
-		rightKey: []byte {27, 91, 67}, // right arrow
-		rotateKey: []byte {27, 91, 65}, // up arrow
-		accelerateKey: []byte {27, 91, 66}, // down arrow
-		instantDownKey: []byte {' '},
-		quitKey: []byte {'q'},
+	InputConfig: InputConfig {
+		LeftKey: []int {27, 91, 68}, // Left arrow
+		RightKey: []int {27, 91, 67}, // right arrow
+		RotateKey: []int {27, 91, 65}, // up arrow
+		AccelerateKey: []int {27, 91, 66}, // down arrow
+		InstantDownKey: []int {' '},
+		QuitKey: []int {'q'},
 	},
-	statesConfig: StatesConfig {
-		timeForMovingOneBlockMilli: 1000,
+	StatesConfig: StatesConfig {
+		TimeForMovingOneBlockMilli: 1000,
 	},
+}
+
+func updateConfigsFromJson(path string) {
+	if path == "" {
+		return
+	}
+
+    data, err := os.ReadFile(path)
+    if err != nil {
+		return
+    }
+
+    json.Unmarshal(data, &config)
 }
